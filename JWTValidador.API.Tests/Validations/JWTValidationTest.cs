@@ -6,6 +6,13 @@ namespace JWTValidador.API.Tests.Validations;
 
 public class JWTValidationTest
 {
+    private readonly string MensagemErroTokenInvalido = "Invalid JWT";
+    private readonly string MensagemErroNomeContemNumero = "The Name claim cannot have a number character";
+    private readonly string MensagemErroEstruturaInvalida = "Invalid token structure should contain only 3 claims(Name, Role and Seed)";
+    private readonly string MensagemErroRoleInvalida = "The Role claim must contain only 1 of the three values (Admin, Member, and External)";
+    private readonly string MensagemErroSeedNumeroNaoPrimo = "The Seed claim must be a prime number";
+    private readonly string MensagemErroNameMaior256 = "The maximum length of the Name claim is 256 characters";
+
     //Verificar metodo Valid
     [Fact(DisplayName = "Verificar metodo Valid")]
     public void Verificar_Valid()
@@ -15,26 +22,33 @@ public class JWTValidationTest
         var fnValid3 = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_CASO3);
         var fnValid4 = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_CASO4);
 
+        var fnJWTEstruturaInvalida = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_ESTRUTURA_JWT);
+        var fnRoleInvalida = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_ROLE_INVALIDA);
+        var fnSeedNaoPrimo = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_SEED_NAO_PRIMO);
+        var fnNameMaior256 = () => JWTValidation.Valid(JWTFixtures.JTW_INVALIDO_NAME_MAIOR_256);
+
         //Act e Arrange
         var result = JWTValidation.Valid(JWTFixtures.JTW_VALIDO_CASO1);
         var exception2 = Assert.Throws<InvalidJWTException>(() => fnValid2());
         var exception3 = Assert.Throws<InvalidDomainException>(() => fnValid3());
-        var exception4 = Assert.Throws<InvalidJWTException>(() => fnValid4());
+        var exception4 = Assert.Throws<InvalidStructureException>(() => fnValid4());
+
+        var exceptionJWTEstruturaInvalida = Assert.Throws<InvalidStructureException>(() => fnJWTEstruturaInvalida());
+        var exceptionRoleInvalida = Assert.Throws<InvalidDomainException>(() => fnRoleInvalida());
+        var exceptionSeedNaoPrimo = Assert.Throws<InvalidDomainException>(() => fnSeedNaoPrimo());
+        var exceptionNameMaior256 = Assert.Throws<InvalidDomainException>(() => fnNameMaior256());
 
         //Assert
         Assert.Equal("verdadeiro", result);
+        Assert.Equal(MensagemErroTokenInvalido, exception2.Message);
+        Assert.Equal(MensagemErroNomeContemNumero, exception3.Message);
+        Assert.Equal(MensagemErroEstruturaInvalida, exception4.Message);
 
-        Assert.Equal("JWT invalido", exception2.Message);
-        Assert.Equal("A claim Name nao pode ter caracter de numeros", exception3.Message);
-        Assert.Equal("Estrutura do token invalido deve conter apenas 3 claims(Name, Role e Seed)", exception4.Message);
-
-        //TODO: Testar
-        //(Caso nomes diferente) Estrutura do token invalido deve conter apenas 3 claims(Name, Role e Seed)
-        //A claim Role deve conter apenas 1 dos três valores (Admin, Member e External)
-        //A claim Seed deve ser um numero primo
-        //O tamanho maximo da claim Name e de 256 caracteres
+        Assert.Equal(MensagemErroEstruturaInvalida, exceptionJWTEstruturaInvalida.Message);
+        Assert.Equal(MensagemErroRoleInvalida, exceptionRoleInvalida.Message);
+        Assert.Equal(MensagemErroSeedNumeroNaoPrimo, exceptionSeedNaoPrimo.Message);
+        Assert.Equal(MensagemErroNameMaior256, exceptionNameMaior256.Message);
     }
-
 
     //Verificar metodo ValidateToken
     [Fact(DisplayName = "Verificar metodo ValidateToken")]

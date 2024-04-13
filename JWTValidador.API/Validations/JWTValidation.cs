@@ -27,19 +27,19 @@ public static class JWTValidation
 
         if (!isJWTValido)
         {
-            throw new InvalidJWTException("Estrutura do token invalido deve conter apenas 3 claims(Name, Role e Seed)");
+            throw new InvalidStructureException("Invalid token structure should contain only 3 claims(Name, Role and Seed)");
         }
-
         var jwtTokenModel = jwtToken.Claims.ConvertToken();
+
         var hasNumber = new Regex(@"[0-9]");
         if (hasNumber.IsMatch(jwtTokenModel.Name))
         {
-            throw new InvalidDomainException("A claim Name nao pode ter caracter de numeros");
+            throw new InvalidDomainException("The Name claim cannot have a number character");
         }
 
         if (!RolesValidas.Any(r => jwtTokenModel.Role.Equals(r)))
         {
-            throw new InvalidDomainException("A claim Role deve conter apenas 1 dos três valores (Admin, Member e External)");
+            throw new InvalidDomainException("The Role claim must contain only 1 of the three values (Admin, Member, and External)");
         }
 
         bool isPrimo = int.TryParse(jwtTokenModel.Seed, out int seed)
@@ -47,12 +47,12 @@ public static class JWTValidation
 
         if (!isPrimo)
         {
-            throw new InvalidDomainException("A claim Seed deve ser um numero primo");
+            throw new InvalidDomainException("The Seed claim must be a prime number");
         }
 
         if (jwtTokenModel.Name.Length > 256)
         {
-            throw new InvalidDomainException("O tamanho maximo da claim Name e de 256 caracteres");
+            throw new InvalidDomainException("The maximum length of the Name claim is 256 characters");
         }
 
         return "verdadeiro";
@@ -65,7 +65,7 @@ public static class JWTValidation
         }
         catch (Exception)
         {
-            throw new InvalidJWTException("JWT invalido");
+            throw new InvalidJWTException("Invalid JWT");
         }
     }
     public static JWTTokenModel ConvertToken(this IEnumerable<Claim> claims)

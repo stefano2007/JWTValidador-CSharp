@@ -9,7 +9,7 @@ namespace JWTValidador.API.Controllers;
 public class ValidadorController : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult> Get(string jwt)
+    public ActionResult Get(string jwt)
     {
 		try
 		{
