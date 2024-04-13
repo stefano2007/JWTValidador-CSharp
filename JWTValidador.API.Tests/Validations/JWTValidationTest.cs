@@ -64,7 +64,7 @@ public class JWTValidationTest
         var jwt4 = JWTValidation.ValidateToken(JWTFixtures.JTW_INVALIDO_CASO4);
 
         //Assert
-        Assert.Equal("JWT invalido", exception.Message);
+        Assert.Equal(MensagemErroTokenInvalido, exception.Message);
 
         Assert.Equal(3, jwtValido.Claims.Count());
         Assert.Equal(3, jwt3.Claims.Count());
