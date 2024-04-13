@@ -3,5 +3,5 @@
 public enum TipoExcecao
 {
     INVALID_JWT,
-    DOMAIN_EXCEPTION
+    INVALID_DOMAIN
 }
