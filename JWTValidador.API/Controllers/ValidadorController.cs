@@ -8,8 +8,8 @@ namespace JWTValidador.API.Controllers;
 [Route("[controller]")]
 public class ValidadorController : ControllerBase
 {
-    [HttpGet("JWT")]
-    public async Task<ActionResult> Get([FromHeader] string jwt)
+    [HttpGet]
+    public async Task<ActionResult> Get(string jwt)
     {
 		try
 		{

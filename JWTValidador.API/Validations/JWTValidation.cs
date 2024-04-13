@@ -1,7 +1,6 @@
 ﻿using JWTValidador.API.Exceptions;
 using JWTValidador.API.Model;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -23,7 +22,38 @@ public static class JWTValidation
     {
         var jwtToken = ValidateToken(jwt);
 
-        
+        //TODO: Junta os dois testes
+        if (jwtToken.Claims.Count() != 3)
+        {
+            throw new InvalidJWTException("Estrutura do token invalido deve conter apenas 3 claims(Name, Role e Seed)");
+        }
+        if (!ClaimsValidas.All(cl => jwtToken.Claims.Any(x => x.Type.Equals(cl))))
+        {
+            throw new InvalidJWTException("Estrutura do token invalido deve conter apenas 3 claims(Name, Role e Seed)");
+        }
+
+        var jwtTokenModel = jwtToken.Claims.ConvertToken();
+        var hasNumber = new Regex(@"[0-9]");
+        if (hasNumber.IsMatch(jwtTokenModel.Name))
+        {
+            throw new InvalidJWTException("A claim Name nao pode ter caracter de numeros");
+        }
+
+        if (!RolesValidas.Any(r => jwtTokenModel.Role.Equals(r)))
+        {
+            throw new InvalidJWTException("A claim Role deve conter apenas 1 dos três valores (Admin, Member e External)");
+        }
+
+        //TODO: A claim Seed deve ser um número primo.
+        if (!int.TryParse(jwtTokenModel.Seed, out int seed) || !VerificaNumeroPrimo(seed))
+        {
+            throw new InvalidJWTException("A claim Seed deve ser um numero primo");
+        }
+
+        if (jwtTokenModel.Name.Length > 256)
+        {
+            throw new InvalidJWTException("O tamanho maximo da claim Name e de 256 caracteres");
+        }
 
         return "verdadeiro";
     }
@@ -45,5 +75,11 @@ public static class JWTValidation
         var seed = claims.FirstOrDefault(x => x.Type.Equals("Seed"))?.Value ?? "";
 
         return new (name: name, role: role, seed: seed);
-    } 
+    }
+
+    // referencia: https://www.macoratti.net/22/05/c_nprimos1.htm
+    public static bool VerificaNumeroPrimo(int numero)
+     => Enumerable.Range(2, (int)Math.Sqrt(numero) - 1)
+         .All(divisor => numero % divisor != 0);
+
 }
